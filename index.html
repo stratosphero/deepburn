@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>deepburn - Create local files for Spotify</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- ID3 writer -->
+  <script src="https://cdn.jsdelivr.net/npm/browser-id3-writer@4.4.0/dist/browser-id3-writer.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#0f1116;
+      --panel:#121418;
+      --panel-2:#0b0d10;
+      --muted:#a8b0bb;
+      --text:#e8ebef;
+      --accent:#1db954;
+      --accent-2:#17a44b;
+      --border:#1f232b;
+      --chip:#22262e;
+      --danger:#e34d4d;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(180deg,#101319 0%, #0b0e13 100%);
+      font-family:Inter,system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color:var(--text);
+    }
+    /* Layout */
+    .app{
+      display:grid;
+      grid-template-columns: 260px 1fr 420px;
+      grid-template-rows: 64px 1fr;
+      grid-template-areas:
+        "sidebar topbar preview"
+        "sidebar main   preview";
+      min-height:100vh;
+      gap:16px;
+      padding:16px;
+    }
+    .sidebar{grid-area:sidebar;background:var(--panel);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+    .topbar{grid-area:topbar;background:var(--panel);border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:12px}
+    .main{grid-area:main;background:var(--panel);border-radius:16px;padding:18px; overflow:auto}
+    .preview{grid-area:preview;background:var(--panel-2);border:1px solid var(--border);border-radius:16px;padding:18px;position:sticky; top:16px; height: calc(100vh - 32px);}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px}
+    .pill{padding:6px 10px;background:var(--chip);border-radius:999px;color:var(--muted);font-size:.8rem}
+    .section-title{font-weight:800;font-size:1rem;margin:8px 0 6px 0;color:#e9edf2}
+    .field{display:flex;flex-direction:column;margin:10px 0}
+    .field label{font-size:.9rem;color:var(--muted);margin-bottom:8px}
+    .row{display:flex; gap:12px; align-items:center}
+    input[type="text"], input[type="date"], input[type="file"], .fake-input{
+      background:#171a20;border:1px solid var(--border);color:var(--text);
+      padding:12px 12px;border-radius:12px;outline:none;width:100%;
+    }
+    input[type="file"]{padding:10px}
+    .btn{border:none;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;color:white;background:var(--accent);}
+    .btn:hover{background:var(--accent-2)}
+    .btn.secondary{background:#2b2f38;color:#dfe6ee}
+    .btn.ghost{background:transparent;color:#cfe7d6;border:1px solid var(--accent)}
+    .btn.danger{background:var(--danger)}
+    .divider{height:1px;background:var(--border);margin:18px 0}
+    /* Artist chip style in preview */
+    .chips{display:flex; flex-wrap:wrap; gap:8px;}
+    .chip{background:#1a1f27;border:1px solid var(--border);padding:4px 10px;border-radius:999px;color:#cfd6df;font-size:.82rem}
+    /* Spotify-like preview card */
+    .card{
+      background:linear-gradient(180deg,#141821 0,#10141b 100%);
+      border:1px solid var(--border);
+      border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    .art{width:100%; aspect-ratio:1/1; background:#0f1217; border-radius:12px; display:grid; place-items:center; overflow:hidden;}
+    .art img{width:100%; height:100%; object-fit:cover}
+    .song-title{font-size:1.25rem; font-weight:800}
+    .muted{color:var(--muted)}
+    .stack{display:flex; flex-direction:column; gap:4px}
+    .drop{border:1px dashed #2b323c; background:#12161e; padding:16px; border-radius:12px; text-align:center; color:#c3cad3}
+    @media (max-width:1100px){
+      .app{grid-template-columns: 1fr; grid-template-rows:auto auto auto; grid-template-areas: "topbar" "main" "preview";}
+      .preview{position:relative; height:auto}
+      .sidebar{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div>deepburn</div>
+      </div>
+      <div class="divider"></div>
+      <div class="pill">created by matthewmason</div>
+    </aside>
+
+    <header class="topbar">
+      <div class="brand" style="gap:8px">
+        <span class="pill">MP3</span>
+        <span class="muted">select an audio file and edit tags</span>
+      </div>
+    </header>
+
+    <main class="main" id="main">
+      <div class="section-title">upload files</div>
+      <div class="row">
+        <div class="field" style="flex:2">
+          <label>MP3 File</label>
+          <input type="file" id="mp3File" accept="audio/mpeg" />
+        </div>
+        <div class="field" style="flex:1">
+          <label>Album Cover (JPG/PNG)</label>
+          <input type="file" id="coverFile" accept="image/*" />
+        </div>
+      </div>
+      <div class="divider"></div>
+
+      <div class="section-title">track info</div>
+      <div class="row">
+        <div class="field" style="flex:1">
+          <label>Song Title *</label>
+          <input type="text" id="title" placeholder="Paranoid" />
+        </div>
+        <div class="field" style="flex:1">
+          <label>Album Name</label>
+          <input type="text" id="album" placeholder="808s & Heartbreak" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field" style="flex:1">
+          <label>Release Date</label>
+          <input type="date" id="releaseDate" />
+        </div>
+        <div class="field" style="flex:1">
+          <label>Multiple Artists?</label>
+          <div class="row">
+            <input id="multiToggle" type="checkbox" />
+            <span class="muted">Check to add 2+ artists</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="artistsArea">
+        <div class="field artist-field">
+          <label>Artist *</label>
+          <input type="text" class="artistInput" placeholder="Kanye West" />
+        </div>
+      </div>
+      <div class="row" id="addArtistRow" style="display:none; margin-top:8px">
+        <button class="btn secondary" id="addArtistBtn" type="button">Add another artist</button>
+        <button class="btn danger" id="clearArtistsBtn" type="button">Clear extra artists</button>
+      </div>
+
+      <div class="divider"></div>
+      <div class="row">
+        <button class="btn" id="downloadBtn">Download</button>
+        <button class="btn ghost" id="resetBtn" type="button">Reset</button>
+      </div>
+      <p class="muted" style="margin-top:12px">note: all processing happens in your browser. large files may take a few seconds to tag.</p>
+    </main>
+
+    <aside class="preview" id="preview">
+      <div class="section-title">Spotify-style Preview</div>
+      <div class="card">
+        <div class="art" id="artBox"><span class="muted">Album Cover</span></div>
+        <div class="stack">
+          <div class="song-title" id="pTitle">Song Title</div>
+          <div class="muted" id="pArtists">Artist</div>
+          <div class="muted" id="pAlbum">Album • Year</div>
+        </div>
+        <div class="divider"></div>
+        <div class="chips" id="artistChips"></div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+const $ = (q)=>document.querySelector(q);
+const $$ = (q)=>Array.from(document.querySelectorAll(q));
+const mp3Input = $('#mp3File');
+const coverInput = $('#coverFile');
+const titleInput = $('#title');
+const albumInput = $('#album');
+const dateInput = $('#releaseDate');
+const multiToggle = $('#multiToggle');
+const artistsArea = $('#artistsArea');
+const addArtistRow = $('#addArtistRow');
+const addArtistBtn = $('#addArtistBtn');
+const clearArtistsBtn = $('#clearArtistsBtn');
+
+// Preview elements
+const artBox = $('#artBox');
+const pTitle = $('#pTitle');
+const pArtists = $('#pArtists');
+const pAlbum = $('#pAlbum');
+const artistChips = $('#artistChips');
+
+let coverArrayBuffer = null;
+let currentCoverURL = null;
+
+// Kanye albums & songs
+const kanyeAlbums = {
+  "The College Dropout": ["We Don't Care", "Graduation Day", "All Falls Down", "Spaceship", "Jesus Walks"],
+  "Late Registration": ["Heard 'Em Say", "Touch the Sky", "Gold Digger", "Drive Slow", "Diamonds from Sierra Leone"],
+  "Graduation": ["Good Morning", "Stronger", "Can't Tell Me Nothing", "Flashing Lights", "Homecoming"],
+  "808s & Heartbreak": ["Say You Will", "Welcome to Heartbreak", "Heartless", "Amazing", "Love Lockdown"],
+  "My Beautiful Dark Twisted Fantasy": ["Power", "All of the Lights", "Monster", "Runaway", "Lost in the World"],
+  "Yeezus": ["Black Skinhead", "New Slaves", "Blood on the Leaves", "I Am a God", "Bound 2"],
+  "The Life of Pablo": ["Ultralight Beam", "Famous", "Father Stretch My Hands Pt. 1", "FML", "Waves"],
+  "Ye": ["I Thought About Killing You", "Yikes", "All Mine", "Wouldn't Leave", "No Mistakes"],
+  "Jesus Is King": ["Every Hour", "Selah", "Follow God", "Closed on Sunday", "On God"],
+  "Donda": ["Donda Chant", "Jail", "Off the Grid", "Hurricane", "Moon"]
+};
+
+// Function to set random Kanye track placeholders
+function setRandomKanyeTrack() {
+  const albums = Object.keys(kanyeAlbums);
+  const randomAlbum = albums[Math.floor(Math.random() * albums.length)];
+  const songs = kanyeAlbums[randomAlbum];
+  const randomSong = songs[Math.floor(Math.random() * songs.length)];
+
+  titleInput.placeholder = randomSong;
+  albumInput.placeholder = randomAlbum;
+}
+
+// Cycle every 5 seconds
+setRandomKanyeTrack(); // initial
+setInterval(setRandomKanyeTrack, 5000);
+
+// --- Preview & other logic ---
+function updatePreview(){
+  const title = titleInput.value.trim() || titleInput.placeholder || 'Song Title';
+  const album = albumInput.value.trim() || albumInput.placeholder;
+  const date = dateInput.value ? new Date(dateInput.value) : null;
+  const year = date ? String(date.getFullYear()) : '';
+  const artists = $$('.artistInput').map(i=>i.value.trim()).filter(Boolean);
+
+  pTitle.textContent = title;
+  pArtists.textContent = artists.length ? artists.join(', ') : 'Artist';
+  pAlbum.textContent = (album || 'Album') + (year? ` • ${year}`: '');
+
+  artistChips.innerHTML = '';
+  (artists.length? artists : ['Artist']).forEach(a=>{
+    const d=document.createElement('div'); d.className='chip'; d.textContent=a; artistChips.appendChild(d);
+  });
+}
+
+titleInput.addEventListener('input', updatePreview);
+albumInput.addEventListener('input', updatePreview);
+dateInput.addEventListener('input', updatePreview);
+artistsArea.addEventListener('input', e=>{
+  if(e.target.classList.contains('artistInput')) updatePreview();
+});
+
+coverInput.addEventListener('change', async ()=>{
+  const file = coverInput.files[0];
+  if(!file) return;
+  coverArrayBuffer = await file.arrayBuffer();
+  if(currentCoverURL) URL.revokeObjectURL(currentCoverURL);
+  currentCoverURL = URL.createObjectURL(file);
+  artBox.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = currentCoverURL;
+  artBox.appendChild(img);
+  updatePreview();
+});
+
+mp3Input.addEventListener('change', ()=>{
+  const f = mp3Input.files[0];
+  if(!f) return;
+  if(!titleInput.value) {
+    const base = f.name.replace(/\.[^.]+$/, '');
+    titleInput.value = base;
+  }
+  updatePreview();
+});
+
+multiToggle.addEventListener('change', ()=>{
+  if(multiToggle.checked){
+    addArtistRow.style.display='flex';
+    if($$('.artistInput').length===1) addArtist();
+  }else{
+    $$('.artist-field').slice(1).forEach(n=>n.remove());
+    addArtistRow.style.display='none';
+  }
+  updatePreview();
+});
+
+addArtistBtn.addEventListener('click', ()=>{ addArtist(); updatePreview(); });
+clearArtistsBtn.addEventListener('click', ()=>{
+  $$('.artist-field').slice(1).forEach(n=>n.remove());
+  updatePreview();
+});
+
+function addArtist(){
+  const wrap = document.createElement('div');
+  wrap.className='field artist-field';
+  wrap.innerHTML = `<label>Artist</label><input type="text" class="artistInput" placeholder="Feature / Producer" />`;
+  artistsArea.appendChild(wrap);
+}
+
+function getArtists(){
+  const arr = $$('.artistInput').map(i=>i.value.trim()).filter(Boolean);
+  return arr.length? arr : ['Unknown Artist'];
+}
+
+function getYearFromDateStr(){
+  if(!dateInput.value) return null;
+  try{ return new Date(dateInput.value).getFullYear().toString(); }catch(e){ return null }
+}
+
+document.getElementById('downloadBtn').addEventListener('click', async ()=>{
+  const mp3 = mp3Input.files?.[0];
+  if(!mp3){ alert('Please choose an MP3 file first.'); return; }
+  if(!titleInput.value.trim()) { alert('Please enter a Song Title.'); return; }
+  if(!getArtists().length) { alert('Please enter at least one Artist.'); return; }
+
+  const arrayBuffer = await mp3.arrayBuffer();
+  const writer = new window.ID3Writer(new Uint8Array(arrayBuffer));
+  const artists = getArtists();
+  const title = titleInput.value.trim();
+  const album = albumInput.value.trim();
+  const year = getYearFromDateStr();
+
+  writer.setFrame('TIT2', title);
+  writer.setFrame('TPE1', artists);
+  if(album) writer.setFrame('TALB', album);
+  if(year) { writer.setFrame('TYER', year); writer.setFrame('TDRC', year); }
+  if(coverArrayBuffer){
+    writer.setFrame('APIC', {
+      type: 3,
+      data: new Uint8Array(coverArrayBuffer),
+      description: 'Cover'
+    });
+  }
+
+  writer.addTag();
+  const taggedArrayBuffer = writer.arrayBuffer();
+  const taggedBlob = new Blob([taggedArrayBuffer], { type: 'audio/mpeg' });
+
+  const outName = makeOutputName(mp3.name, title, artists);
+  const url = URL.createObjectURL(taggedBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = outName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 3000);
+});
+
+function makeOutputName(original, title, artists){
+  const safe = (s)=>s.replace(/[\/:*?"<>|]+/g,'').trim();
+  const ext = original.includes('.')? original.split('.').pop() : 'mp3';
+  return `${safe(artists.join(', '))} - ${safe(title)}.${ext}`;
+}
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  ['title','album','releaseDate'].forEach(id=>{ const el=document.getElementById(id); el.value='';});
+  mp3Input.value=''; coverInput.value=''; coverArrayBuffer=null;
+  if(currentCoverURL){ URL.revokeObjectURL(currentCoverURL); currentCoverURL=null; }
+  artBox.innerHTML = '<span class="muted">Album Cover</span>';
+  $$('.artist-field').slice(1).forEach(n=>n.remove());
+  $$('.artistInput')[0].value='';
+  multiToggle.checked=false; addArtistRow.style.display='none';
+  updatePreview();
+});
+
+updatePreview();
+</script>
+</body>
+</html>
