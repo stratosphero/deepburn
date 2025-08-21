@@ -174,21 +174,40 @@
       .app{grid-template-columns:1fr;grid-template-rows:auto auto auto;grid-template-areas:"topbar" "main" "preview"}
       .preview{position:relative;height:auto} .sidebar{display:none}
     }
+/* --- NEW: Icon Styling --- */
+.brand-logo {
+  width: 28px;
+  height: 28px;
+}
+.file-input-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Adds space between icon and text */
+}
+.icon {
+  width: 16px;
+  height: 16px;
+}
+/* --- END: Icon Styling --- */
   </style>
 </head>
 <body>
   <div class="app">
-    <aside class="sidebar"><div class="brand"><div>deepburn</div></div><div class="divider"></div><div class="pill">created by matthewmason</div><div class="pill">Album Cover Presets, Album Presets, Live Preview Examples, Background, UI Changes, Live Preview Theme Matching Cover & MP3 Player Done By @ToothEh (eric)</div></aside>
+    <aside class="sidebar"><div class="brand">
+  <img src="logo.png" alt="Deepburn Logo" class="brand-logo"><div>deepburn</div></div></div><div class="divider"></div><div class="pill">created by matthewmason</div><div class="pill">Album Cover Presets, Album Presets, Live Preview Examples, Background, UI Changes, Live Preview Theme Matching Cover & MP3 Player Done By @ToothEh (eric)</div></aside>
     <header class="topbar"><div class="brand" style="gap:8px"><span class="pill">MP3</span><span class="muted">select an audio file and edit tags</span></div></header>
     <main class="main" id="main">
       <div class="section-title">upload files</div>
       <div class="field">
         <label>MP3 File</label>
-        <div class="file-input-wrapper">
-          <input type="file" id="mp3File" accept="audio/mpeg" />
-          <label for="mp3File" class="file-input-label">Choose File</label>
-          <span class="file-name" id="mp3FileName">No file chosen</span>
-        </div>
+<div class="file-input-wrapper">
+  <input type="file" id="mp3File" accept="audio/mpeg" />
+  <label for="mp3File" class="file-input-label">
+    <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M12,3V13.55A4,4 0 1,0 14,17V7H18V3H12Z"></path></svg>
+    Choose File
+  </label>
+  <span class="file-name" id="mp3FileName">No file chosen</span>
+</div>
       </div>
       <div class="field">
           <label>Album Cover</label>
@@ -203,10 +222,13 @@
       <div class="field">
           <label>... or Upload Custom Cover (JPG/PNG)</label>
           <div class="file-input-wrapper">
-              <input type="file" id="coverFile" accept="image/*" />
-              <label for="coverFile" class="file-input-label">Choose File</label>
-              <span class="file-name" id="coverFileName">No file chosen</span>
-          </div>
+    <input type="file" id="coverFile" accept="image/*" />
+    <label for="coverFile" class="file-input-label">
+      <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"></path></svg>
+      Choose File
+    </label>
+    <span class="file-name" id="coverFileName">No file chosen</span>
+</div>
       </div>
 
       <div class="divider"></div>
@@ -573,6 +595,7 @@ previewInterval = setInterval(setRandomPreview, 3250);
 </script>
 </body>
 </html>
+
 
 
 
