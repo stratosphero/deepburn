@@ -136,15 +136,27 @@
       width: 24px; height: 24px; display: grid; place-items: center;
     }
     .player-controls svg {width:100%;height:100%;}
+    
+    /* --- NEW --- Updated volume control styling */
     .volume-control{position:relative;display:flex;align-items:center}
     .volume-slider-container{
-      position:absolute;left:50%;bottom:100%;transform:translateX(-50%);
-      background: #1e222a; padding: 12px 6px; border-radius: 8px; border:1px solid var(--border);
-      opacity:0;visibility:hidden;transition: .2s ease; margin-bottom: 8px;
+      position:absolute; left: 50%; bottom: calc(100% + 12px); transform: translateX(-50%);
+      background: #1e222a; width: 32px; height: 130px;
+      border-radius: 16px; border:1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      opacity:0; visibility:hidden; transition: .2s ease;
     }
     .volume-control:hover .volume-slider-container{opacity:1;visibility:visible}
-    .volume-slider{ -webkit-appearance: none; appearance: none; width: 8px; height: 100px; background: #444; border-radius: 4px; writing-mode: bt-lr; cursor: pointer; }
-    .volume-slider::-webkit-slider-thumb{ -webkit-appearance:none;appearance:none;width:16px;height:16px;background:var(--accent);border-radius:50%;cursor:pointer }
+    .volume-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100px; height: 6px; transform: rotate(-90deg);
+      background: #444; border-radius: 3px; cursor: pointer;
+    }
+    .volume-slider::-webkit-slider-thumb{
+      -webkit-appearance:none;appearance:none;
+      width:16px; height:16px;
+      background:var(--accent); border-radius:50%;
+    }
     
     .scrubber{ flex:1; display:flex; align-items:center; gap:8px }
     .scrubber input[type="range"]{
@@ -301,15 +313,16 @@ async function imageURLToBuffer(url) {
     } catch (error) { console.error(`Failed to fetch image '${url}':`, error); return null; }
 }
 
-
 function getID3Ctor() {
     const g = window.ID3Writer; if (!g) throw new Error('ID3Writer not loaded.');
     if (typeof g === 'function') return g; if (g?.ID3Writer) return g.ID3Writer; if (g?.default) return g.default;
     throw new Error('ID3Writer constructor not found.');
 }
 
-const rawAlbumList = const rawAlbumList = ["before college dropout", "the college dropout", "late registration", "graduation", "808's & Heartbreak", "good ass job", "my beautiful dark twisted fantasy", "watch the throne", "cruel summer", "yeezus", "cruel winter", "yeezus 2", "so help me god", "SWISH", "the life of pablo", "cruel winter [V2]", "turbografx16", "LOVE EVERYONE", "DAYTONA", "ye", "KIDS SEE GHOSTS", "Nasir", "K.T.S.E.", "Good Ass Job (2018)", "Yandhi [V1]", "Yandhi [V2]", "JESUS IS KING", "JESUS IS LORD", "JESUS IS KING: The Dr. Dre Version", "DONDA [V1]", "DONDA [V2]", "DONDA [V3]", "DONDA 2", "WAR", "YEBU", "Bad Bitch Playbook", "VULTURES 1", "VULTURES 2", "VULTURES 3", "BULLY", "CUCK", "IN A PERFECT WORLD"];
-const allCaps = ["SWISH", "LOVE EVERYONE", "DAYTONA", "NASIR", "KIDS SEE GHOSTS", "K.T.S.E.", "JESUS IS KING", "DONDA [V1]", "DONDA [V2]", "DONDA [V3]", "DONDA 2", "WAR", "YEBU", "VULTURES 1", "VULTURES 2", "VULTURES 3", "BULLY", "CUCK", "IN A PERFECT WORLD"];
+// --- FIXED --- Corrected the album list declaration syntax error
+const rawAlbumList = ["before college dropout", "the college dropout", "late registration", "graduation", "808's & Heartbreak", "good ass job", "my beautiful dark twisted fantasy", "watch the throne", "cruel summer", "yeezus", "cruel winter", "yeezus 2", "so help me god", "SWISH", "the life of pablo", "cruel winter [V2]", "turbografx16", "LOVE EVERYONE", "DAYTONA", "ye", "KIDS SEE GHOSTS", "Nasir", "K.T.S.E.", "Good Ass Job (2018)", "Yandhi [V1]", "Yandhi [V2]", "JESUS IS KING", "JESUS IS LORD", "JESUS IS KING: The Dr. Dre Version", "DONDA: WITH CHILD", "DONDA [V2]", "DONDA [V3]", "DONDA 2", "WAR", "YEBU", "Bad Bitch Playbook", "VULTURES 1", "VULTURES 2", "VULTURES 3", "BULLY", "CUCK", "IN A PERFECT WORLD"];
+// --- UPDATED --- Changed DONDA V1 to DONDA: WITH CHILD
+const allCaps = ["SWISH", "LOVE EVERYONE", "DAYTONA", "NASIR", "KIDS SEE GHOSTS", "K.T.S.E.", "JESUS IS KING", "DONDA: WITH CHILD", "DONDA [V2]", "DONDA [V3]", "DONDA 2", "WAR", "YEBU", "VULTURES 1", "VULTURES 2", "VULTURES 3", "BULLY", "CUCK", "IN A PERFECT WORLD"];
 const allLower = ["ye"];
 const albumsToExcludeFromCovers = ["before college dropout", "cruel winter [V2]", "Good Ass Job (2018)", "Yandhi [V2]"];
 
@@ -332,11 +345,12 @@ const randomPreviewTracks = [
     { title: "Famous", album: "The Life Of Pablo", artists: ["Kanye West", "Rihanna", "Swizz Beatz"] },
     { title: "Reborn", album: "KIDS SEE GHOSTS", artists: ["KIDS SEE GHOSTS"] },
     { title: "All Day", album: "So Help Me God", artists: ["Kanye West", "Theophilus London", "Allan Kingdom", "Paul McCartney"] },
-    { title: "City in the Sky", album: "Yandhi", artists: ["Kanye West", "Ty Dolla $ign", "Jeremih", "070 Shake"] },
-    { title: "Hurricane", album: "Yandhi", artists: ["Kanye West", "Big Sean", "Ty Dolla $ign", "Ant Clemons"] },
+    { title: "City in the Sky", album: "Yandhi [V1]", artists: ["Kanye West", "Ty Dolla $ign", "Jeremih", "070 Shake"] }, // Using Yandhi V1 for cover
+    { title: "Hurricane", album: "Yandhi [V1]", artists: ["Kanye West", "Big Sean", "Ty Dolla $ign", "Ant Clemons"] }, // Using Yandhi V1 for cover
     { title: "Follow God", album: "JESUS IS KING", artists: ["Kanye West"] },
-    { title: "Future Sounds", album: "Donda (with child)", artists: ["Kanye West", "Travis Scott", "Victory Boyd"] },
-    { title: "Come to Life", album: "DONDA", artists: ["Kanye West"] },
+    // --- UPDATED --- Changed album to new name
+    { title: "Future Sounds", album: "DONDA: WITH CHILD", artists: ["Kanye West", "Travis Scott", "Victory Boyd"] },
+    { title: "Come to Life", album: "DONDA [V2]", artists: ["Kanye West"] }, // Using V2 for donda cover
     { title: "Can't Look In My Eyes", album: "Yeezus 2", artists: ["Kanye West", "Kid Cudi"] }
 ];
 
@@ -353,7 +367,6 @@ function updateArtAndBackground(imageUrl) {
         }
     }
 }
-
 
 function setupCustomSelect(containerId) {
     const container = $(containerId), trigger = container.querySelector('input, .fake-input'), panel = container.querySelector('.dropdown-panel');
@@ -447,7 +460,7 @@ function setRandomPreview() {
     pArtists.textContent = track.artists.join(', ');
     updatePreview();
 }
-// AUDIO PLAYER LOGIC
+
 const formatTime = (time) => { const min = Math.floor(time/60); const sec = Math.floor(time%60); return `${min}:${sec < 10 ? '0'+sec : sec}`;}
 playPauseBtn.onclick = () => { audioPlayer.paused ? audioPlayer.play() : audioPlayer.pause(); };
 audioPlayer.onplay = () => { playIcon.style.display = 'none'; pauseIcon.style.display = 'block'; };
@@ -471,7 +484,6 @@ function setPlayerEnabled(enabled){
     }
 }
 
-// Event Listeners
 [titleInput, dateInput, albumInput].forEach(el => el.addEventListener('input', () => stopCyclingAndUpdate()));
 artistsArea.addEventListener('input', e => { if (e.target.classList.contains('artistInput')) stopCyclingAndUpdate(); });
 
@@ -541,10 +553,11 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 });
 
 populateDropdowns();
-setupCustomSelect('#albumSelect'); setupCustomSelect('#artistSelect'); setupCustomSelect('#coverSelect');
+setupCustomSelect('#albumSelect');
+setupCustomSelect('#artistSelect');
+setupCustomSelect('#coverSelect');
 setRandomPreview();
 previewInterval = setInterval(setRandomPreview, 5000);
 </script>
 </body>
 </html>
-
