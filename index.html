@@ -343,7 +343,6 @@ const randomPreviewTracks = [
     { title: "Stronger", album: "Graduation", artists: ["Kanye West"] },
     { title: "Heartless", album: "808's & Heartbreak", artists: ["Kanye West"] },
     { title: "Famous", album: "The Life Of Pablo", artists: ["Kanye West", "Rihanna", "Swizz Beatz"] },
-    { title: "Reborn", album: "KIDS SEE GHOSTS", artists: ["KIDS SEE GHOSTS"] },
     { title: "All Day", album: "So Help Me God", artists: ["Kanye West", "Theophilus London", "Allan Kingdom", "Paul McCartney"] },
     { title: "City in the Sky", album: "Yandhi [V1]", artists: ["Kanye West", "Ty Dolla $ign", "Jeremih", "070 Shake"] }, // Using Yandhi V1 for cover
     { title: "80 Degrees", album: "Yandhi [V1]", artists: ["Kanye West", "Big Sean", "Ty Dolla $ign", "Ant Clemons"] }, // Using Yandhi V1 for cover
@@ -358,7 +357,7 @@ const randomPreviewTracks = [
     { title: "Enjoy The Pain", album: "Cruel Winter", artists: ["Kanye West", "John Legend"] },
     { title: "AWESOME [V4]", album: "Thank God For Drugs", artists: ["Kanye West", "Stevie Wonder", "Charles Wilson"] },
     { title: "BELIEVER", album: "Vultures 2", artists: ["Kanye West", "Ty Dolla $ign", "Charlie Wilson"] },
-    { title: "THIS ONE HERE", album: "BULLY", artists: ["Kanye West, Don Toliver"] },
+    { title: "THIS ONE HERE", album: "BULLY", artists: ["Kanye West, "Don Toliver"] },
     { title: "Showtime ", album: "WAR", artists: ["Kanye West", "James Blake"] },
     { title: "What I Would've Said At Virgil's Funeral", album: "WAR", artists: ["Kanye West", "James Blake", "Vory"] },
 ];
@@ -566,9 +565,10 @@ setupCustomSelect('#albumSelect');
 setupCustomSelect('#artistSelect');
 setupCustomSelect('#coverSelect');
 setRandomPreview();
-previewInterval = setInterval(setRandomPreview, 5000);
+previewInterval = setInterval(setRandomPreview, 2500);
 </script>
 </body>
 </html>
+
 
 
