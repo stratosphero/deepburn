@@ -50,7 +50,7 @@
       transition: background-color 1.5s ease-in-out;
     }
     .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:.2px}
-    .pill{padding:6px 10px;background:var(--chip);border-radius:14px;color:var(--muted);font-size:.8rem}
+    .pill{padding:6px 12px;background:var(--chip);border-radius:14px;color:var(--muted);font-size:.8rem}
     .section-title{font-weight:800;font-size:1.1rem;margin:8px 0 6px 0;color:#e9edf2}
     .field{display:flex;flex-direction:column;margin:10px 0}
     .field label{font-size:.9rem;color:var(--muted);margin-bottom:8px}
@@ -112,7 +112,6 @@
       height: 100%;
     }
     .file-input-label {
-      display: inline-block;
       padding: 10px 18px;
       cursor: pointer;
       border-radius: 12px;
@@ -137,14 +136,15 @@
     }
     .player-controls svg {width:100%;height:100%;}
     
-    /* --- NEW --- Updated volume control styling */
     .volume-control{position:relative;display:flex;align-items:center}
     .volume-slider-container{
       position:absolute; left: 50%; bottom: calc(100% + 12px); transform: translateX(-50%);
-      background: #1e222a; width: 32px; height: 130px;
+      background: rgba(30, 34, 42, 0.9);
+      width: 32px; height: 130px;
       border-radius: 16px; border:1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
       opacity:0; visibility:hidden; transition: .2s ease;
+      backdrop-filter: blur(8px);
     }
     .volume-control:hover .volume-slider-container{opacity:1;visibility:visible}
     .volume-slider {
@@ -156,6 +156,7 @@
       -webkit-appearance:none;appearance:none;
       width:16px; height:16px;
       background:var(--accent); border-radius:50%;
+      border: 3px solid #1e222a;
     }
     
     .scrubber{ flex:1; display:flex; align-items:center; gap:8px }
@@ -169,45 +170,41 @@
     }
     .player-controls [disabled], .scrubber input[disabled] { cursor: not-allowed; opacity: 0.4; }
 
+    .brand-logo { width: 28px; height: 28px; }
+    .file-input-label { display: inline-flex; align-items: center; gap: 8px; }
+    .icon { width: 16px; height: 16px; }
+
     @media (max-width:1100px){
       body{overflow: auto;}
       .app{grid-template-columns:1fr;grid-template-rows:auto auto auto;grid-template-areas:"topbar" "main" "preview"}
       .preview{position:relative;height:auto} .sidebar{display:none}
     }
-/* --- NEW: Icon Styling --- */
-.brand-logo {
-  width: 28px;
-  height: 28px;
-}
-.file-input-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px; /* Adds space between icon and text */
-}
-.icon {
-  width: 16px;
-  height: 16px;
-}
-/* --- END: Icon Styling --- */
   </style>
 </head>
 <body>
   <div class="app">
-    <aside class="sidebar"><div class="brand">
-  <img src="logo.png" alt="Deepburn Logo" class="brand-logo"><div>deepburn</div></div></div><div class="divider"></div><div class="pill">created by matthewmason</div><div class="pill">Album Cover Presets, Album Presets, Live Preview Examples, Background, UI Changes, Live Preview Theme Matching Cover & MP3 Player Done By @ToothEh (eric)</div></aside>
+    <aside class="sidebar">
+        <div class="brand">
+            <img src="logo.png" alt="Deepburn Logo" class="brand-logo">
+            <div>deepburn</div>
+        </div>
+        <div class="divider"></div>
+        <div class="pill">created by matthewmason</div>
+        <div class="pill">Album Cover Presets, Album Presets, Live Preview Examples, Background, UI Changes, Live Preview Theme Matching Cover & MP3 Player Done By @ToothEh (eric)</div>
+    </aside>
     <header class="topbar"><div class="brand" style="gap:8px"><span class="pill">MP3</span><span class="muted">select an audio file and edit tags</span></div></header>
     <main class="main" id="main">
       <div class="section-title">upload files</div>
       <div class="field">
         <label>MP3 File</label>
-<div class="file-input-wrapper">
-  <input type="file" id="mp3File" accept="audio/mpeg" />
-  <label for="mp3File" class="file-input-label">
-    <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M12,3V13.55A4,4 0 1,0 14,17V7H18V3H12Z"></path></svg>
-    Choose File
-  </label>
-  <span class="file-name" id="mp3FileName">No file chosen</span>
-</div>
+        <div class="file-input-wrapper">
+          <input type="file" id="mp3File" accept="audio/mpeg" />
+          <label for="mp3File" class="file-input-label">
+            <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M12,3V13.55A4,4 0 1,0 14,17V7H18V3H12Z"></path></svg>
+            Choose File
+          </label>
+          <span class="file-name" id="mp3FileName">No file chosen</span>
+        </div>
       </div>
       <div class="field">
           <label>Album Cover</label>
@@ -222,13 +219,13 @@
       <div class="field">
           <label>... or Upload Custom Cover (JPG/PNG)</label>
           <div class="file-input-wrapper">
-    <input type="file" id="coverFile" accept="image/*" />
-    <label for="coverFile" class="file-input-label">
-      <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"></path></svg>
-      Choose File
-    </label>
-    <span class="file-name" id="coverFileName">No file chosen</span>
-</div>
+            <input type="file" id="coverFile" accept="image/*" />
+            <label for="coverFile" class="file-input-label">
+              <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"></path></svg>
+              Choose File
+            </label>
+            <span class="file-name" id="coverFileName">No file chosen</span>
+        </div>
       </div>
 
       <div class="divider"></div>
@@ -341,9 +338,7 @@ function getID3Ctor() {
     throw new Error('ID3Writer constructor not found.');
 }
 
-// --- FIXED --- Corrected the album list declaration syntax error
 const rawAlbumList = ["before college dropout", "the college dropout", "late registration", "graduation", "808's & Heartbreak", "good ass job", "my beautiful dark twisted fantasy", "watch the throne", "cruel summer", "Thank God For Drugs", "yeezus", "cruel winter", "yeezus 2", "so help me god", "SWISH", "the life of pablo", "cruel winter [V2]", "turbografx16", "LOVE EVERYONE", "DAYTONA", "ye", "KIDS SEE GHOSTS", "Nasir", "K.T.S.E.", "Good Ass Job (2018)", "Yandhi [V1]", "Yandhi [V2]", "JESUS IS KING", "JESUS IS LORD", "JESUS IS KING: The Dr. Dre Version", "DONDA: WITH CHILD", "DONDA [V2]", "DONDA [V3]", "DONDA 2", "WAR", "YEBU", "Bad Bitch Playbook", "VULTURES 1", "VULTURES 2", "VULTURES 3", "BULLY", "CUCK", "IN A PERFECT WORLD"];
-// --- UPDATED --- Changed DONDA V1 to DONDA: WITH CHILD
 const allCaps = ["SWISH", "LOVE EVERYONE", "DAYTONA", "NASIR", "KIDS SEE GHOSTS", "K.T.S.E.", "JESUS IS KING", "DONDA: WITH CHILD", "DONDA [V2]", "DONDA [V3]", "DONDA 2", "WAR", "YEBU", "VULTURES 1", "VULTURES 2", "VULTURES 3", "BULLY", "CUCK", "IN A PERFECT WORLD"];
 const allLower = ["ye"];
 const albumsToExcludeFromCovers = ["before college dropout", "cruel winter [V2]", "Good Ass Job (2018)", "Yandhi [V2]"];
@@ -366,12 +361,11 @@ const randomPreviewTracks = [
     { title: "Heartless", album: "808's & Heartbreak", artists: ["Kanye West"] },
     { title: "Famous", album: "The Life Of Pablo", artists: ["Kanye West", "Rihanna", "Swizz Beatz"] },
     { title: "All Day", album: "So Help Me God", artists: ["Kanye West", "Theophilus London", "Allan Kingdom", "Paul McCartney"] },
-    { title: "City in the Sky", album: "Yandhi [V1]", artists: ["Kanye West", "Ty Dolla $ign", "Jeremih", "070 Shake"] }, // Using Yandhi V1 for cover
-    { title: "80 Degrees", album: "Yandhi [V1]", artists: ["Kanye West", "Big Sean", "Ty Dolla $ign", "Ant Clemons"] }, // Using Yandhi V1 for cover
+    { title: "City in the Sky", album: "Yandhi [V1]", artists: ["Kanye West", "Ty Dolla $ign", "Jeremih", "070 Shake"] },
+    { title: "80 Degrees", album: "Yandhi [V1]", artists: ["Kanye West", "Big Sean", "Ty Dolla $ign", "Ant Clemons"] },
     { title: "Follow God", album: "JESUS IS KING", artists: ["Kanye West"] },
-    // --- UPDATED --- Changed album to new name
     { title: "Future Sounds", album: "DONDA: WITH CHILD", artists: ["Kanye West", "Travis Scott", "Victory Boyd"] },
-    { title: "Come to Life", album: "DONDA [V2]", artists: ["Kanye West"] }, // Using V2 for donda cover
+    { title: "Come to Life", album: "DONDA [V2]", artists: ["Kanye West"] },
     { title: "Can't Look In My Eyes", album: "Yeezus 2", artists: ["Kanye West", "Kid Cudi"] },
     { title: "MISSION CONTROL", album: "IN A PERFECT WORLD", artists: ["Kanye West", "Tony Williams"] },
     { title: "MATTHEW", album: "Vultures 1", artists: ["Kanye West", "North West", "Charlie Wilson"] },
@@ -446,7 +440,7 @@ function startCycling() {
     [titleInput, albumInput, dateInput].forEach(el => { el.value = ''; });
     $$('.artist-field').slice(1).forEach(n=>n.remove()); $$('.artistInput')[0].value='';
     if (!isCycling) {
-        previewInterval = setInterval(setRandomPreview, 5000);
+        previewInterval = setInterval(setRandomPreview, 3250);
         isCycling = true;
     }
 }
@@ -595,13 +589,3 @@ previewInterval = setInterval(setRandomPreview, 3250);
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
