@@ -41,7 +41,13 @@
     }
     .sidebar{grid-area:sidebar;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
     .topbar{grid-area:topbar;border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:12px}
-    .main{grid-area:main;border-radius:16px;padding:18px;overflow:auto}
+    .main{
+      grid-area:main;
+      border-radius:16px;
+      padding:18px;
+      overflow:auto;
+      min-height: 0; /* Fixes scrolling on constrained viewports */
+    }
     .preview{
       grid-area:preview;
       background:rgba(11,13,16,0.6);
@@ -589,5 +595,3 @@ previewInterval = setInterval(setRandomPreview, 3250);
 </script>
 </body>
 </html>
-
-
